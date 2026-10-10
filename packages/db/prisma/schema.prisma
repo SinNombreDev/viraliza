@@ -1,0 +1,168 @@
+// Viraliza — Prisma schema.
+//
+// This is the production data model. In dev you can run without a database:
+// the app uses the in-memory store unless DATABASE_URL is set. To go live:
+//   1. Set DATABASE_URL to a Postgres connection string.
+//   2. npx prisma migrate dev --name init
+//   3. npx prisma generate
+//   4. Wire `PrismaStore` in apps/web (see src/prisma-store.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MarketplaceId {
+  mercadolivre
+  shopee
+  amazon
+}
+
+enum PlanId {
+  free
+  pro
+  business
+}
+
+enum ConversionStatus {
+  pending
+  approved
+  paid
+  rejected
+}
+
+enum WalletEntryType {
+  commission
+  referral_bonus
+  payout
+  subscription
+  adjustment
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  name                String
+  email               String    @unique
+  phone               String?   @unique
+  passwordHash        String?
+  referralCode        String    @unique
+  referredById        String?
+  referredBy          User?     @relation("Referrals", fields: [referredById], references: [id])
+  referrals           User[]    @relation("Referrals")
+  plan                PlanId    @default(free)
+  planExpiresAt       DateTime?
+  affiliateTags       Json      @default("{}") // per-marketplace affiliate ids
+  balanceCents        Int       @default(0)
+  lifetimeEarningsCents Int     @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  links               AffiliateLink[]
+  conversions         Conversion[]
+  wallet              WalletEntry[]
+  subscription        Subscription?
+  leads               Lead[]
+
+  @@index([phone])
+}
+
+model AffiliateLink {
+  id              String        @id @default(cuid())
+  code            String        @unique
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  productId       String
+  marketplace     MarketplaceId
+  title           String
+  imageUrl        String
+  priceCents      Int
+  destinationUrl  String
+  whatsappShareUrl String
+  providerShortUrl String?
+  clicks          Int           @default(0)
+  conversions     Int           @default(0)
+  earningsCents   Int           @default(0)
+  createdAt       DateTime      @default(now())
+
+  conversionRows  Conversion[]
+
+  @@index([userId])
+  @@index([productId])
+}
+
+model Conversion {
+  id                    String           @id @default(cuid())
+  linkId                String
+  link                  AffiliateLink    @relation(fields: [linkId], references: [id])
+  userId                String
+  user                  User             @relation(fields: [userId], references: [id])
+  marketplace           MarketplaceId
+  externalOrderId       String?
+  orderValueCents       Int
+  grossCommissionCents  Int
+  platformFeeCents      Int
+  netCommissionCents    Int
+  referralBonusCents    Int              @default(0)
+  status                ConversionStatus @default(pending)
+  createdAt             DateTime         @default(now())
+  settledAt             DateTime?
+
+  @@index([userId])
+  @@index([linkId])
+}
+
+model WalletEntry {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id])
+  type        WalletEntryType
+  amountCents Int
+  description String
+  refId       String?
+  createdAt   DateTime        @default(now())
+
+  @@index([userId])
+}
+
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  plan              PlanId
+  billing           String   // monthly | one_time
+  status            String   // active | canceled | past_due
+  provider          String   @default("stripe")
+  providerRef       String?
+  currentPeriodEnd  DateTime?
+  createdAt         DateTime @default(now())
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  phone     String
+  name      String?
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  optedIn   Boolean  @default(false)
+  source    String?
+  lastSeen  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@unique([phone])
+}
+
+model ClickEvent {
+  id         String        @id @default(cuid())
+  linkCode   String
+  marketplace MarketplaceId
+  userAgent  String?
+  ip         String?
+  country    String?
+  createdAt  DateTime      @default(now())
+
+  @@index([linkCode])
+}

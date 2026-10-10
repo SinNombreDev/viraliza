@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Viraliza",
+    "slug": "viraliza",
+    "scheme": "viraliza",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#07070c"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.viraliza.mobile",
+      "infoPlist": {
+        "NSAppTransportSecurity": { "NSAllowsArbitraryLoads": true }
+      }
+    },
+    "android": {
+      "package": "app.viraliza.mobile",
+      "adaptiveIcon": { "backgroundColor": "#07070c" },
+      "edgeToEdgeEnabled": true,
+      "usesCleartextTraffic": true
+    },
+    "web": { "bundler": "metro" },
+    "extra": {
+      "apiUrl": "http://localhost:3000"
+    },
+    "plugins": []
+  }
+}

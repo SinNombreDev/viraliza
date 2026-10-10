@@ -1,0 +1,30 @@
+{
+  "name": "viraliza",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Viraliza — automatic viral affiliate-sales platform (web + Android + iOS) for Mercado Livre, Shopee and Amazon, with AI sales agents, WhatsApp automation and commission sharing.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "npm run dev -w @viraliza/web",
+    "dev:web": "npm run dev -w @viraliza/web",
+    "dev:mobile": "npm run start -w @viraliza/mobile",
+    "build": "npm run build -w @viraliza/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:seed": "npm run seed -w @viraliza/db",
+    "db:generate": "npm run generate -w @viraliza/db"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.14",
+    "typescript": "^5.6.3"
+  },
+  "overrides": {
+    "@types/react": "19.0.14"
+  }
+}
