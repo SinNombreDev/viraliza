@@ -19,9 +19,13 @@ Viraliza é uma plataforma de marketing de afiliados 100% automatizada para o Br
 Requisitos: **Node.js ≥ 20** (testado no 24) e npm.
 
 ```bash
+git clone https://github.com/SinNombreDev/viraliza.git
+cd viraliza
 npm install          # instala tudo (workspaces)
 npm run dev          # sobe o web + API em http://localhost:3000
 ```
+
+> Já clonou o repositório? Comece direto no `npm install`.
 
 Pronto. **Tudo roda em "modo demo"** sem nenhuma chave:
 
